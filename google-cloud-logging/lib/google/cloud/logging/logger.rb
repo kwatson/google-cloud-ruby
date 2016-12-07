@@ -59,6 +59,8 @@ module Google
         # Stackdriver services.
         attr_reader :trace_ids
 
+        attr_reader :level
+
         ##
         # Create a new Logger instance.
         #
@@ -102,6 +104,21 @@ module Google
           @labels = labels
           @level = 0 # DEBUG is the default behavior
           @trace_ids = OrderedHash.new
+        end
+
+        def formatter
+          ActiveSupport::Logger::Formatter.new
+        end
+
+        # def silence_logger
+        #   ActiveRecord::SessionStore::Extension::LoggerSilencer
+        # end
+        def silence_logger
+          if self.respond_to?(:silence) && self.method(:silence).arity == 0
+             self.silence { yield }
+          else
+            yield
+          end
         end
 
         ##
